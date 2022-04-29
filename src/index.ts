@@ -107,6 +107,7 @@ class RemootioDevice extends EventEmitter {
   private apiSessionKey?: string;
   private lastActionId?: number;
   private autoReconnect: boolean;
+  private port: number; 
   private sendPingMessageEveryXMs: number;
   private sendPingMessageIntervalHandle?: ReturnType<typeof setInterval>;
   private pingReplyTimeoutXMs: number;
@@ -141,6 +142,7 @@ class RemootioDevice extends EventEmitter {
     this.lastActionId = undefined;
 
     this.autoReconnect = false; //Reconnect automatically if connection is lost
+    this.port = 8080;
 
     if (sendPingMessageEveryXMs) {
       this.sendPingMessageEveryXMs = sendPingMessageEveryXMs; //in ms , send a ping message every PingMessagePeriodicity time, a PONG reply is expected
@@ -157,10 +159,14 @@ class RemootioDevice extends EventEmitter {
   /**
    * Connect to the Remootio device's websocket API
    * @param {boolean} autoReconnect - If autoReconnect is true, the API client will try to reconnect to the device everytime the connection is lost (recommended)
+   * @param {number} port - The port that the device is listening to
    */
-  public connect(autoReconnect: boolean): void {
+  public connect(autoReconnect: boolean, port?: number): void {
     if (autoReconnect == true) {
       this.autoReconnect = true;
+    }
+    if (port) {
+      this.port = port;
     }
 
     //Set session data to NULL
@@ -169,7 +175,7 @@ class RemootioDevice extends EventEmitter {
     this.waitingForAuthenticationQueryActionResponse = undefined;
 
     //We connect to the API
-    this.websocketClient = new WebSocket('ws://' + this.deviceIp + ':8080/');
+    this.websocketClient = new WebSocket('ws://' + this.deviceIp + ':' + this.port.toString() + '/');
     this.emit('connecting');
 
     this.websocketClient.on('open', () => {
@@ -195,7 +201,7 @@ class RemootioDevice extends EventEmitter {
       }, this.sendPingMessageEveryXMs);
     });
 
-    this.websocketClient.on('message', (data) => {
+    this.websocketClient.on('message', (data: any) => {
       try {
         //We process the messsage received from the API
         const rcvMsgJson: ReceivedFrames = JSON.parse(data.toString()); //It must be JSON format
@@ -259,7 +265,7 @@ class RemootioDevice extends EventEmitter {
           //we this.emit the normal frames
           this.emit('incomingmessage', rcvMsgJson, undefined);
         }
-      } catch (e) {
+      } catch (e: any) {
         this.emit('error', e);
       }
     });
@@ -271,8 +277,8 @@ class RemootioDevice extends EventEmitter {
         this.sendPingMessageIntervalHandle = undefined;
       }
 
-      if (this.autoReconnect == true) {
-        this.connect(this.autoReconnect);
+      if (this.autoReconnect == true ) {
+        this.connect(this.autoReconnect, this.port);
       }
 
       this.emit('disconnect');

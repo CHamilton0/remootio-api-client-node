@@ -8,7 +8,7 @@ const testApiAuthKey = 'F01AEB37D9E79FB213ACA2CFB48BECF6C1513F1C5623534799B3BEFE
 const delay = (ms: number) =>
   new Promise((resolve) =>
     setTimeout(() => {
-      resolve();
+      resolve(0);
     }, ms)
   );
 
@@ -50,7 +50,7 @@ test('Client can emit events', async () => {
   const disconnectCallback = jest.fn(() => {});
   instance.on('disconnect', disconnectCallback);
 
-  instance.connect(false);
+  instance.connect(false, 8080);
 
   await delay(500);
 
