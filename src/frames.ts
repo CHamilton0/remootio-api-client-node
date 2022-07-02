@@ -68,7 +68,7 @@ type ActionTypesWithDurationParam = 'TRIGGER' | 'TRIGGER_SECONDARY' | 'OPEN' | '
 type SimpleActionTypes = 'QUERY' | 'RESTART';
 
 type ActionTypes = ActionTypesWithDurationParam | SimpleActionTypes;
-type SensorStates = 'closed' | 'open' | 'no sensor';
+export type SensorStates = 'closed' | 'open' | 'no sensor';
 type KeyTypes = 'master key' | 'unique key' | 'guest key' | 'api key' | 'smart home' | 'automation';
 type ConnectionTypes = 'bluetooth' | 'wifi' | 'internet' | 'autoopen' | 'unknown' | 'none';
 export interface RemootioAction {
